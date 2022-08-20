@@ -1,0 +1,42 @@
+._styles-module__fmItem__3AgOk {
+  width: 100%;
+  height: 80px;
+  position: relative;
+  border-radius: 4px;
+}
+._styles-module__fmItem__3AgOk:hover {
+  background-color: #f6f6f6 !important;
+}
+
+._styles-module__fmItemContainer__3uMId {
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+._styles-module__fmItem__3AgOk:hover ._styles-module__fmItemMenuIcon__33CL5 {
+  display: block;
+}
+
+._styles-module__fmItemName__39AR9 {
+  padding: 4px 16px;
+  background-color: #fefefe;
+}
+
+._styles-module__fmItemMenuIcon__33CL5 {
+  top: 2px;
+  right: 2px;
+  display: none;
+  position: absolute;
+  cursor: pointer;
+}
+
+._styles-module__loader__3qqrl {
+  height: 200px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
