@@ -492,7 +492,7 @@ var ReactFileManager = function ReactFileManager(_ref) {
     visible: visible
   }, {
     key: visible + "-file-manager-body"
-  })), " :", ' ', React.createElement(React.Fragment, null));
+  })), React.createElement(React.Fragment, null));
 };
 
 var Body = function Body(_ref2) {

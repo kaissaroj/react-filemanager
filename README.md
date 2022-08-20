@@ -7,7 +7,7 @@
 ## Install
 
 ```bash
-npm install --save react-filemanager
+npm i @kaizer433/react-filemanager
 ```
 
 ## Usage
@@ -15,12 +15,27 @@ npm install --save react-filemanager
 ```tsx
 import React, { Component } from 'react'
 
-import MyComponent from 'react-filemanager'
-import 'react-filemanager/dist/index.css'
+import { ReactFileManager } from '@kaizer433/react-filemanager'
+import '@kaizer433/react-filemanager/dist/index.css'
 
+import {
+  DeleteFileFolder,
+  GetLists,
+  RenameFileFolder,
+  CreateFileFolder
+} from './api'
 class Example extends Component {
   render() {
-    return <MyComponent />
+    return (
+      <ReactFileManager
+        visible={_show}
+        onClose={() => setShow(false)}
+        getList={GetLists}
+        deletePath={DeleteFileFolder}
+        renamePath={RenameFileFolder}
+        create={CreateFileFolder}
+      />
+    )
   }
 }
 ```

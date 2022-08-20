@@ -13,7 +13,6 @@ export async function GetLists(path: string = '') {
     response.data = resultJSON
   } catch (e) {
     console.error(e)
-    throw Error(e)
   }
   return response
 }
@@ -31,7 +30,6 @@ export async function DeleteFileFolder(path: string = '') {
     response.data = resultJSON
   } catch (e) {
     console.error(e)
-    throw Error(e)
   }
   return response
 }
@@ -53,7 +51,6 @@ export async function RenameFileFolder(path: string = '', newFileName: string) {
     response.data = resultJSON
   } catch (e) {
     console.error(e)
-    throw Error(e)
   }
   return response
 }
@@ -61,7 +58,7 @@ export async function CreateFileFolder(payload: {
   name: string
   type: string
   location: string
-  file: File
+  file: any
 }) {
   const response = {
     status: false,
@@ -84,7 +81,6 @@ export async function CreateFileFolder(payload: {
     response.data = resultJSON
   } catch (e) {
     console.error(e)
-    throw Error(e)
   }
   return response
 }

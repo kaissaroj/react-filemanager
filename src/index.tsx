@@ -34,7 +34,7 @@ export const ReactFileManager = ({
   }, [])
   return (
     <QueryClientProvider client={queryClient}>
-      <Body {...{ visible }} key={`${visible}-file-manager-body`} /> :{' '}
+      <Body {...{ visible }} key={`${visible}-file-manager-body`} />
       <React.Fragment />
     </QueryClientProvider>
   )

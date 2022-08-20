@@ -438,7 +438,7 @@ const ReactFileManager = ({
     visible
   }, {
     key: `${visible}-file-manager-body`
-  })), " :", ' ', createElement(Fragment, null));
+  })), createElement(Fragment, null));
 };
 
 const Body = ({
