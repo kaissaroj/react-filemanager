@@ -42,7 +42,7 @@ const MenuItems = ({
   link: string
   showRenameModal: any
 }) => {
-  const { deletePath, copyId }: any = Actions.get()
+  const { deletePath, onCopy }: any = Actions.get()
   const lists = [
     {
       icon: <CopyOutlined />,
@@ -65,9 +65,8 @@ const MenuItems = ({
   }
   const onClick = async ({ key }: any) => {
     if (Number(key) === 0) {
-      if (copyId) {
-        const inputDom: any = document.getElementById(copyId)
-        if (inputDom) inputDom.value = link
+      if (onCopy) {
+        onCopy(link)
       }
       CopyToClipboard(link)
       message.info('Copied to clipboard')

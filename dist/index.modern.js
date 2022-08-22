@@ -136,7 +136,7 @@ const MenuItems = ({
 }) => {
   const {
     deletePath,
-    copyId
+    onCopy
   } = Actions.get();
   const lists = [{
     icon: React__default.createElement(CopyOutlined, null),
@@ -160,9 +160,8 @@ const MenuItems = ({
     key
   }) => {
     if (Number(key) === 0) {
-      if (copyId) {
-        const inputDom = document.getElementById(copyId);
-        if (inputDom) inputDom.value = link;
+      if (onCopy) {
+        onCopy(link);
       }
 
       CopyToClipboard(link);
@@ -428,7 +427,7 @@ const ReactFileManager = ({
   renamePath,
   deletePath,
   create,
-  copyId
+  onCopy
 }) => {
   useLayoutEffect(() => {
     Actions.set({
@@ -437,7 +436,7 @@ const ReactFileManager = ({
       renamePath,
       onClose,
       create,
-      copyId
+      onCopy
     });
   }, []);
   return createElement(QueryClientProvider, {

@@ -7,7 +7,7 @@ interface ReactFileManagerProps {
     renamePath: (path: string, newFileName: string) => Promise<any>;
     create: (payload: CreateType) => Promise<any>;
     onClose: () => void;
-    copyId?: string;
+    onCopy?: (path: string) => void;
 }
-export declare const ReactFileManager: ({ visible, onClose, getList, renamePath, deletePath, create, copyId }: ReactFileManagerProps) => JSX.Element;
+export declare const ReactFileManager: ({ visible, onClose, getList, renamePath, deletePath, create, onCopy }: ReactFileManagerProps) => JSX.Element;
 export {};

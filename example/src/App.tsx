@@ -10,6 +10,9 @@ import {
 
 const App = () => {
   const [_show, setShow] = useState<boolean>(false)
+  function onCopy(value: string) {
+    alert(value)
+  }
   return (
     <>
       <ReactFileManager
@@ -19,7 +22,7 @@ const App = () => {
         deletePath={DeleteFileFolder}
         renamePath={RenameFileFolder}
         create={CreateFileFolder}
-        copyId='text'
+        onCopy={onCopy}
       />
       <button onClick={() => setShow(true)}>Open</button>
       <input type={'text'} id='text' />

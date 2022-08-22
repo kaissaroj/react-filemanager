@@ -19,7 +19,7 @@ interface ReactFileManagerProps {
   renamePath: (path: string, newFileName: string) => Promise<any>
   create: (payload: CreateType) => Promise<any>
   onClose: () => void
-  copyId?: string
+  onCopy?: (path: string) => void
 }
 const queryClient = new QueryClient()
 export const ReactFileManager = ({
@@ -29,10 +29,10 @@ export const ReactFileManager = ({
   renamePath,
   deletePath,
   create,
-  copyId
+  onCopy
 }: ReactFileManagerProps) => {
   React.useLayoutEffect(() => {
-    Actions.set({ getList, deletePath, renamePath, onClose, create, copyId })
+    Actions.set({ getList, deletePath, renamePath, onClose, create, onCopy })
   }, [])
   return (
     <QueryClientProvider client={queryClient}>
