@@ -150,7 +150,8 @@ var MenuItems = function MenuItems(_ref2) {
       showRenameModal = _ref2.showRenameModal;
 
   var _Actions$get = Actions.get(),
-      deletePath = _Actions$get.deletePath;
+      deletePath = _Actions$get.deletePath,
+      copyId = _Actions$get.copyId;
 
   var lists = [{
     icon: React__default.createElement(icons.CopyOutlined, null),
@@ -181,6 +182,11 @@ var MenuItems = function MenuItems(_ref2) {
       };
 
       if (Number(key) === 0) {
+        if (copyId) {
+          var inputDom = document.getElementById(copyId);
+          if (inputDom) inputDom.value = link;
+        }
+
         CopyToClipboard(link);
         antd.message.info('Copied to clipboard');
       }
@@ -476,14 +482,16 @@ var ReactFileManager = function ReactFileManager(_ref) {
       getList = _ref.getList,
       renamePath = _ref.renamePath,
       deletePath = _ref.deletePath,
-      create = _ref.create;
+      create = _ref.create,
+      copyId = _ref.copyId;
   React.useLayoutEffect(function () {
     Actions.set({
       getList: getList,
       deletePath: deletePath,
       renamePath: renamePath,
       onClose: onClose,
-      create: create
+      create: create,
+      copyId: copyId
     });
   }, []);
   return React.createElement(reactQuery.QueryClientProvider, {

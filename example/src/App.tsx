@@ -19,8 +19,10 @@ const App = () => {
         deletePath={DeleteFileFolder}
         renamePath={RenameFileFolder}
         create={CreateFileFolder}
+        copyId='text'
       />
       <button onClick={() => setShow(true)}>Open</button>
+      <input type={'text'} id='text' />
     </>
   )
 }
