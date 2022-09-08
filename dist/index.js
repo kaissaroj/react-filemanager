@@ -56,7 +56,7 @@ function BeautifyData(responseData) {
   if (status) {
     lists = data.map(function (list) {
       return _extends({}, list, {
-        title: GetFileNameFromLink(list.link),
+        title: list.type === 'folder' ? list.title : GetFileNameFromLink(list.link),
         type: IsImage(list.link) ? 'image' : list.type
       });
     });
@@ -128,12 +128,16 @@ var styles$2 = {"fmItem":"_styles-module__fmItem__3AgOk","fmItemContainer":"_sty
 var MenuOption = function MenuOption(_ref) {
   var type = _ref.type,
       link = _ref.link,
-      showRenameModal = _ref.showRenameModal;
+      showRenameModal = _ref.showRenameModal,
+      prefix = _ref.prefix,
+      refetch = _ref.refetch;
   return React__default.createElement(React__default.Fragment, null, React__default.createElement(antd.Dropdown, {
     overlay: function overlay() {
       return React__default.createElement(MenuItems, Object.assign({}, {
         type: type,
         link: link,
+        prefix: prefix,
+        refetch: refetch,
         showRenameModal: showRenameModal
       }));
     },
@@ -147,7 +151,9 @@ var MenuOption = function MenuOption(_ref) {
 var MenuItems = function MenuItems(_ref2) {
   var type = _ref2.type,
       link = _ref2.link,
-      showRenameModal = _ref2.showRenameModal;
+      showRenameModal = _ref2.showRenameModal,
+      prefix = _ref2.prefix,
+      refetch = _ref2.refetch;
 
   var _Actions$get = Actions.get(),
       deletePath = _Actions$get.deletePath,
@@ -158,17 +164,13 @@ var MenuItems = function MenuItems(_ref2) {
     label: 'Copy',
     key: 0
   }, {
-    icon: React__default.createElement(icons.EditOutlined, null),
-    label: 'Rename',
-    key: 1
-  }, {
     icon: React__default.createElement(icons.DeleteOutlined, null),
     label: 'Delete',
     key: 2
   }];
 
   if (type === 'folder') {
-    delete lists[0];
+    lists = [];
   }
 
   var onClick = function onClick(_ref3) {
@@ -196,7 +198,12 @@ var MenuItems = function MenuItems(_ref2) {
 
           var _temp6 = function () {
             if (confirmation) {
-              return Promise.resolve(deletePath(link)).then(function () {});
+              alert(prefix);
+              return Promise.resolve(deletePath(prefix)).then(function () {
+                setTimeout(function () {
+                  refetch();
+                }, 1000);
+              });
             }
           }();
 
@@ -297,6 +304,7 @@ var RenameModal = function RenameModal(_ref) {
 
 function Lists(_ref) {
   var data = _ref.data,
+      refetch = _ref.refetch,
       updateBreadBumbIndex = _ref.updateBreadBumbIndex;
 
   var _useState = React.useState({
@@ -327,6 +335,7 @@ function Lists(_ref) {
     renderItem: function renderItem(_ref2) {
       var type = _ref2.type,
           title = _ref2.title,
+          prefix = _ref2.prefix,
           link = _ref2.link;
       return React__default.createElement(antd.List.Item, null, React__default.createElement("div", {
         className: styles$2.fmItem
@@ -334,7 +343,7 @@ function Lists(_ref) {
         className: styles$2.fmItemContainer
       }, type === 'folder' ? React__default.createElement("span", {
         onClick: function onClick() {
-          return updateBreadBumbIndex(title, link);
+          return updateBreadBumbIndex(title, prefix);
         },
         style: {
           cursor: 'pointer'
@@ -343,7 +352,9 @@ function Lists(_ref) {
         src: link
       }))), React__default.createElement(MenuOption, Object.assign({}, {
         type: type,
-        link: link
+        link: link,
+        prefix: prefix,
+        refetch: refetch
       }, {
         showRenameModal: function showRenameModal() {
           return _showRenameModal({
@@ -365,7 +376,8 @@ function Lists(_ref) {
 
 var ModalTitle = function ModalTitle(_ref) {
   var toggleBreadCumbIndex = _ref.toggleBreadCumbIndex,
-      breadCumbLists = _ref.breadCumbLists;
+      breadCumbLists = _ref.breadCumbLists,
+      refetch = _ref.refetch;
   var selectInputRef = React.useRef(null);
 
   var _Actions$get = Actions.get(),
@@ -385,6 +397,7 @@ var ModalTitle = function ModalTitle(_ref) {
       return Promise.resolve(create(payload)).then(function (response) {
         if (response !== null && response !== void 0 && response.status) {
           alert('File Successfully uploaded');
+          refetch();
         } else {
           alert('File upload failed');
         }
@@ -410,6 +423,7 @@ var ModalTitle = function ModalTitle(_ref) {
           return Promise.resolve(create(payload)).then(function (response) {
             if (response !== null && response !== void 0 && response.status) {
               alert('Folder Successfully created');
+              refetch();
             } else {
               alert('Folder create failed');
             }
@@ -474,7 +488,13 @@ var ModalTitle = function ModalTitle(_ref) {
   }));
 };
 
-var queryClient = new reactQuery.QueryClient();
+var queryClient = new reactQuery.QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+});
 var ReactFileManager = function ReactFileManager(_ref) {
   var visible = _ref.visible,
       onClose = _ref.onClose,
@@ -528,9 +548,16 @@ var Body = function Body(_ref2) {
     return visible ? getList(queryKey) : new Promise(function (resolve) {
       return resolve(null);
     });
+  }, {
+    enabled: false
   }),
       isLoading = _useQuery.isLoading,
-      data = _useQuery.data;
+      data = _useQuery.data,
+      refetch = _useQuery.refetch;
+
+  React.useEffect(function () {
+    visible && refetch();
+  }, [visible, queryKey]);
 
   var handleModalCancel = function handleModalCancel() {
     setVisible(false);
@@ -538,6 +565,11 @@ var Body = function Body(_ref2) {
   };
 
   var updateBreadBumbIndex = function updateBreadBumbIndex(title, link) {
+    console.log({
+      title: title
+    }, {
+      link: link
+    });
     var newBread = [].concat(breadCumbLists, [{
       title: title,
       link: link
@@ -548,8 +580,8 @@ var Body = function Body(_ref2) {
         path += (index > 1 ? '/' : '') + item.title;
       }
     });
-    setBreadCumbLists(newBread);
     setQueryKey('/' + encodeURIComponent(path));
+    setBreadCumbLists(newBread);
   };
 
   var toggleBreadCumbIndex = function toggleBreadCumbIndex(index) {
@@ -574,6 +606,7 @@ var Body = function Body(_ref2) {
     closable: false,
     title: React.createElement(ModalTitle, Object.assign({}, {
       breadCumbLists: breadCumbLists,
+      refetch: refetch,
       toggleBreadCumbIndex: toggleBreadCumbIndex
     })),
     footer: [React.createElement(antd.Button, {
@@ -583,6 +616,7 @@ var Body = function Body(_ref2) {
   }, isLoading ? React.createElement(Loading, null) : React.createElement(Lists, Object.assign({
     data: lists
   }, {
+    refetch: refetch,
     updateBreadBumbIndex: updateBreadBumbIndex
   })));
 };

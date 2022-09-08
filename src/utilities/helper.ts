@@ -29,7 +29,8 @@ export function BeautifyData(responseData: any) {
     lists = data.map((list: any) => {
       return {
         ...list,
-        title: GetFileNameFromLink(list.link),
+        title:
+          list.type === 'folder' ? list.title : GetFileNameFromLink(list.link),
         type: IsImage(list.link) ? 'image' : list.type
       }
     })

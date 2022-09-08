@@ -15,8 +15,13 @@ import styles from '../styles.module.css'
 interface ListProps {
   data: listType[]
   updateBreadBumbIndex: (title: string, link: string) => void
+  refetch: any
 }
-export default function Lists({ data, updateBreadBumbIndex }: ListProps) {
+export default function Lists({
+  data,
+  refetch,
+  updateBreadBumbIndex
+}: ListProps) {
   const [renameDetails, setRenameDetails] = useState<{
     _show: boolean
     data: {
@@ -44,13 +49,13 @@ export default function Lists({ data, updateBreadBumbIndex }: ListProps) {
           xxl: 9
         }}
         dataSource={data}
-        renderItem={({ type, title, link }: any) => (
+        renderItem={({ type, title, prefix, link }: any) => (
           <List.Item>
             <div className={styles.fmItem}>
               <div className={styles.fmItemContainer}>
                 {type === 'folder' ? (
                   <span
-                    onClick={() => updateBreadBumbIndex(title, link)}
+                    onClick={() => updateBreadBumbIndex(title, prefix)}
                     style={{ cursor: 'pointer' }}
                   >
                     <Folder />
@@ -64,7 +69,7 @@ export default function Lists({ data, updateBreadBumbIndex }: ListProps) {
                 )}
               </div>
               <MenuOption
-                {...{ type, link }}
+                {...{ type, link, prefix, refetch }}
                 showRenameModal={() => showRenameModal({ type, title, link })}
               />
               <FileFolderTitle {...{ title }} />

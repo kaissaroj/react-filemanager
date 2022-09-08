@@ -21,7 +21,13 @@ interface ReactFileManagerProps {
   onClose: () => void
   onCopy?: (path: string) => void
 }
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+})
 export const ReactFileManager = ({
   visible,
   onClose,
@@ -54,14 +60,26 @@ const Body = ({ visible }: { visible: boolean }) => {
     }
   ])
   const [queryKey, setQueryKey] = React.useState<string>('/')
-  const { isLoading, data }: any = useQuery([queryKey], () => {
-    return visible ? getList(queryKey) : new Promise((resolve) => resolve(null))
-  })
+  const { isLoading, data, refetch }: any = useQuery(
+    [queryKey],
+    () => {
+      return visible
+        ? getList(queryKey)
+        : new Promise((resolve) => resolve(null))
+    },
+    {
+      enabled: false
+    }
+  )
+  React.useEffect(() => {
+    visible && refetch()
+  }, [visible, queryKey])
   const handleModalCancel = () => {
     setVisible(false)
     onClose()
   }
   const updateBreadBumbIndex = (title: string, link: string) => {
+    console.log({ title }, { link })
     const newBread: any = [...breadCumbLists, { title, link }]
     let path: string = ''
     newBread.forEach((item: any, index: number) => {
@@ -69,8 +87,8 @@ const Body = ({ visible }: { visible: boolean }) => {
         path += (index > 1 ? '/' : '') + item.title
       }
     })
-    setBreadCumbLists(newBread)
     setQueryKey('/' + encodeURIComponent(path))
+    setBreadCumbLists(newBread)
   }
   const toggleBreadCumbIndex = (index: number) => {
     const filteredBreadCumb = breadCumbLists.filter((_, i) => i <= index)
@@ -91,7 +109,9 @@ const Body = ({ visible }: { visible: boolean }) => {
       width='90%'
       onCancel={handleModalCancel}
       closable={false}
-      title={<ModalTitle {...{ breadCumbLists, toggleBreadCumbIndex }} />}
+      title={
+        <ModalTitle {...{ breadCumbLists, refetch, toggleBreadCumbIndex }} />
+      }
       footer={[
         <Button key='back' onClick={handleModalCancel}>
           CLOSE
@@ -101,7 +121,7 @@ const Body = ({ visible }: { visible: boolean }) => {
       {isLoading ? (
         <Loading />
       ) : (
-        <Lists data={lists} {...{ updateBreadBumbIndex }} />
+        <Lists data={lists} {...{ refetch, updateBreadBumbIndex }} />
       )}
     </Modal>
   )

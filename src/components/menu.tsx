@@ -1,6 +1,6 @@
 import {
   CopyOutlined,
-  EditOutlined,
+  // EditOutlined,
   MoreOutlined,
   DeleteOutlined
 } from '@ant-design/icons'
@@ -13,16 +13,22 @@ import { Actions, CopyToClipboard } from '../utilities/helper'
 const MenuOption = ({
   type,
   link,
-  showRenameModal
+  showRenameModal,
+  prefix,
+  refetch
 }: {
   type: string
   link: string
   showRenameModal: (data: any) => void
+  refetch: any
+  prefix: string
 }) => {
   return (
     <React.Fragment>
       <Dropdown
-        overlay={() => <MenuItems {...{ type, link, showRenameModal }} />}
+        overlay={() => (
+          <MenuItems {...{ type, link, prefix, refetch, showRenameModal }} />
+        )}
         trigger={['click']}
         placement='bottomRight'
       >
@@ -36,24 +42,28 @@ const MenuOption = ({
 const MenuItems = ({
   type,
   link,
-  showRenameModal
+  showRenameModal,
+  prefix,
+  refetch
 }: {
   type: string
   link: string
   showRenameModal: any
+  prefix: string
+  refetch: any
 }) => {
   const { deletePath, onCopy }: any = Actions.get()
-  const lists = [
+  let lists = [
     {
       icon: <CopyOutlined />,
       label: 'Copy',
       key: 0
     },
-    {
-      icon: <EditOutlined />,
-      label: 'Rename',
-      key: 1
-    },
+    // {
+    //   icon: <EditOutlined />,
+    //   label: 'Rename',
+    //   key: 1
+    // },
     {
       icon: <DeleteOutlined />,
       label: 'Delete',
@@ -61,7 +71,9 @@ const MenuItems = ({
     }
   ]
   if (type === 'folder') {
-    delete lists[0]
+    // delete lists[0]
+    // delete lists[2]
+    lists = []
   }
   const onClick = async ({ key }: any) => {
     if (Number(key) === 0) {
@@ -74,7 +86,11 @@ const MenuItems = ({
     if (Number(key) === 2) {
       const confirmation = confirm('Are you sure you want to remove ?')
       if (confirmation) {
-        await deletePath(link)
+        alert(prefix)
+        await deletePath(prefix)
+        setTimeout(() => {
+          refetch()
+        }, 1000)
       }
     }
     if (Number(key) === 1) {

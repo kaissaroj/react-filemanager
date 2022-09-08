@@ -8,10 +8,12 @@ import { Actions } from '../utilities/helper'
 interface ModalTitleProps {
   breadCumbLists: BreadCumbType[]
   toggleBreadCumbIndex: (index: number) => void
+  refetch: any
 }
 const ModalTitle = ({
   toggleBreadCumbIndex,
-  breadCumbLists
+  breadCumbLists,
+  refetch
 }: ModalTitleProps) => {
   const selectInputRef: any = useRef(null)
   const { create }: any = Actions.get()
@@ -29,6 +31,7 @@ const ModalTitle = ({
     const response = await create(payload)
     if (response?.status) {
       alert('File Successfully uploaded')
+      refetch()
     } else {
       alert('File upload failed')
     }
@@ -46,6 +49,7 @@ const ModalTitle = ({
       const response = await create(payload)
       if (response?.status) {
         alert('Folder Successfully created')
+        refetch()
       } else {
         alert('Folder create failed')
       }

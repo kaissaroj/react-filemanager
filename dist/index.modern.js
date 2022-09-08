@@ -1,8 +1,8 @@
 import { Spin, Image, Dropdown, Menu, message, Typography, Modal, Input, List, Breadcrumb, Button } from 'antd';
-import React__default, { useRef, useState, useLayoutEffect, createElement, Fragment } from 'react';
+import React__default, { useRef, useState, useLayoutEffect, createElement, Fragment, useEffect } from 'react';
 import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query';
 import 'antd/dist/antd.css';
-import { FolderFilled, FileFilled, MoreOutlined, CopyOutlined, EditOutlined, DeleteOutlined, PlusSquareOutlined, UploadOutlined } from '@ant-design/icons';
+import { FolderFilled, FileFilled, MoreOutlined, CopyOutlined, DeleteOutlined, PlusSquareOutlined, UploadOutlined } from '@ant-design/icons';
 
 function GetFileNameFromLink(link) {
   const fileName = link.split('/').pop();
@@ -41,7 +41,7 @@ function BeautifyData(responseData) {
   if (status) {
     lists = data.map(list => {
       return { ...list,
-        title: GetFileNameFromLink(list.link),
+        title: list.type === 'folder' ? list.title : GetFileNameFromLink(list.link),
         type: IsImage(list.link) ? 'image' : list.type
       };
     });
@@ -114,12 +114,16 @@ var styles$2 = {"fmItem":"_styles-module__fmItem__3AgOk","fmItemContainer":"_sty
 const MenuOption = ({
   type,
   link,
-  showRenameModal
+  showRenameModal,
+  prefix,
+  refetch
 }) => {
   return React__default.createElement(React__default.Fragment, null, React__default.createElement(Dropdown, {
     overlay: () => React__default.createElement(MenuItems, Object.assign({}, {
       type,
       link,
+      prefix,
+      refetch,
       showRenameModal
     })),
     trigger: ['click'],
@@ -132,20 +136,18 @@ const MenuOption = ({
 const MenuItems = ({
   type,
   link,
-  showRenameModal
+  showRenameModal,
+  prefix,
+  refetch
 }) => {
   const {
     deletePath,
     onCopy
   } = Actions.get();
-  const lists = [{
+  let lists = [{
     icon: React__default.createElement(CopyOutlined, null),
     label: 'Copy',
     key: 0
-  }, {
-    icon: React__default.createElement(EditOutlined, null),
-    label: 'Rename',
-    key: 1
   }, {
     icon: React__default.createElement(DeleteOutlined, null),
     label: 'Delete',
@@ -153,7 +155,7 @@ const MenuItems = ({
   }];
 
   if (type === 'folder') {
-    delete lists[0];
+    lists = [];
   }
 
   const onClick = async ({
@@ -172,7 +174,11 @@ const MenuItems = ({
       const confirmation = confirm('Are you sure you want to remove ?');
 
       if (confirmation) {
-        await deletePath(link);
+        alert(prefix);
+        await deletePath(prefix);
+        setTimeout(() => {
+          refetch();
+        }, 1000);
       }
     }
 
@@ -263,6 +269,7 @@ const RenameModal = ({
 
 function Lists({
   data,
+  refetch,
   updateBreadBumbIndex
 }) {
   const [renameDetails, setRenameDetails] = useState({
@@ -291,13 +298,14 @@ function Lists({
     renderItem: ({
       type,
       title,
+      prefix,
       link
     }) => React__default.createElement(List.Item, null, React__default.createElement("div", {
       className: styles$2.fmItem
     }, React__default.createElement("div", {
       className: styles$2.fmItemContainer
     }, type === 'folder' ? React__default.createElement("span", {
-      onClick: () => updateBreadBumbIndex(title, link),
+      onClick: () => updateBreadBumbIndex(title, prefix),
       style: {
         cursor: 'pointer'
       }
@@ -305,7 +313,9 @@ function Lists({
       src: link
     }))), React__default.createElement(MenuOption, Object.assign({}, {
       type,
-      link
+      link,
+      prefix,
+      refetch
     }, {
       showRenameModal: () => showRenameModal({
         type,
@@ -324,7 +334,8 @@ function Lists({
 
 const ModalTitle = ({
   toggleBreadCumbIndex,
-  breadCumbLists
+  breadCumbLists,
+  refetch
 }) => {
   const selectInputRef = useRef(null);
   const {
@@ -345,6 +356,7 @@ const ModalTitle = ({
 
     if (response !== null && response !== void 0 && response.status) {
       alert('File Successfully uploaded');
+      refetch();
     } else {
       alert('File upload failed');
     }
@@ -365,6 +377,7 @@ const ModalTitle = ({
 
       if (response !== null && response !== void 0 && response.status) {
         alert('Folder Successfully created');
+        refetch();
       } else {
         alert('Folder create failed');
       }
@@ -419,7 +432,13 @@ const ModalTitle = ({
   }));
 };
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false
+    }
+  }
+});
 const ReactFileManager = ({
   visible,
   onClose,
@@ -463,10 +482,16 @@ const Body = ({
   const [queryKey, setQueryKey] = useState('/');
   const {
     isLoading,
-    data
+    data,
+    refetch
   } = useQuery([queryKey], () => {
     return visible ? getList(queryKey) : new Promise(resolve => resolve(null));
+  }, {
+    enabled: false
   });
+  useEffect(() => {
+    visible && refetch();
+  }, [visible, queryKey]);
 
   const handleModalCancel = () => {
     setVisible(false);
@@ -474,6 +499,11 @@ const Body = ({
   };
 
   const updateBreadBumbIndex = (title, link) => {
+    console.log({
+      title
+    }, {
+      link
+    });
     const newBread = [...breadCumbLists, {
       title,
       link
@@ -484,8 +514,8 @@ const Body = ({
         path += (index > 1 ? '/' : '') + item.title;
       }
     });
-    setBreadCumbLists(newBread);
     setQueryKey('/' + encodeURIComponent(path));
+    setBreadCumbLists(newBread);
   };
 
   const toggleBreadCumbIndex = index => {
@@ -508,6 +538,7 @@ const Body = ({
     closable: false,
     title: createElement(ModalTitle, Object.assign({}, {
       breadCumbLists,
+      refetch,
       toggleBreadCumbIndex
     })),
     footer: [createElement(Button, {
@@ -517,6 +548,7 @@ const Body = ({
   }, isLoading ? createElement(Loading, null) : createElement(Lists, Object.assign({
     data: lists
   }, {
+    refetch,
     updateBreadBumbIndex
   })));
 };
